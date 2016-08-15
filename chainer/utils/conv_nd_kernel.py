@@ -3,6 +3,12 @@ import six
 
 import chainer
 
+#
+# Helpers
+
+def identity(x):
+    return x
+
 
 def mulexp(xs, init=None):
     if init is not None:
@@ -33,7 +39,7 @@ def _succ_sublists(xs):
     return [xs[i:] for i in six.moves.range(len(xs))]
 
 
-def _vars(prefix, n):
+def vars(prefix, n):
     return ['{}_{}'.format(prefix, i) for i in six.moves.range(n)]
 
 
@@ -53,11 +59,28 @@ class _Writer(object):
     def get(self):
         return '\n'.join(self._lines)
 
+"""
+def writer():
+    _indent = [0]
+    _lines = []
+"""
+
+
 
 #
 # im2col
 
 class Im2colNDKernel(object):
+
+    """
+    def __init__(self, ndim):
+        self.ndim = ndim
+        self.ds = vars('d', ndim)
+        self.outs = vars('out', ndim)
+        self.ks = vars('k', ndim)
+        self.ss = vars('s', ndim)
+        self.ps = vars('p', ndim)
+    """
 
     def _in_params(self, ds, outs, ks, ss, ps):
         # 2D: raw T img, int32 d_0, int32 d_1, int32 out_0, int32 out_1,
@@ -83,8 +106,10 @@ class Im2colNDKernel(object):
                 return 'int {} = i / ({}) % {};'.format(kx, mulexp(tail), head)
             else:
                 return 'int {} = i % {};'.format(kx, head)
+
         kxs = _vars('kx', ndim)
         kx_decls = map(aux, kxs, _succ_sublists(ks))
+
         return kx_decls, kxs
 
     def _compile_out_x(self, ndim, outs):
@@ -98,6 +123,7 @@ class Im2colNDKernel(object):
                     out_x, mulexp(tail), head)
             else:
                 return 'int {} = i % {};'.format(out_x, head)
+
         out_xs = _vars('out_x', ndim)
         out_x_decls = map(aux, out_xs, _succ_sublists(outs))
         return out_x_decls, out_xs
@@ -162,6 +188,16 @@ class Im2colNDKernel(object):
 # col2im
 
 class Col2imNDKernel(object):
+
+    """
+    def __init__(self, ndim):
+        self.ndim = ndim
+        self.ds = vars('d', ndim)
+        self.outs = vars('out', ndim)
+        self.ks = vars('k', ndim)
+        self.ss = vars('s', ndim)
+        self.ps = vars('p', ndim)
+    """
 
     def _in_params(self, ds, outs, ks, ss, ps):
         # 2D: raw T col, int32 d_0, int32 d_1, int32 out_0, int32 out_1,
