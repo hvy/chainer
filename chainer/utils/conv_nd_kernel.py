@@ -10,6 +10,35 @@ def identity(x):
     return x
 
 
+def maplist(fn, xs):
+    # Imperative impl. because Python does not optimize tail recursion.
+    ret = []
+    while xs:
+        ret += [fn(xs)]
+        xs = xs[1:]
+    return ret
+
+
+def writer():
+    _indent = [0]
+    _lines = []
+
+    def _aux(line=None, indent=None):
+        if line is None:
+            return '\n'.join(_lines)
+        else:
+            if indent == 'dec':
+                _indent[0] -= 1
+            _lines.append('  ' * _indent[0] + line)
+            if indent == 'inc':
+                _indent[0] += 1
+    return _aux
+
+
+def vars(prefix, n):
+        return ['{}_{}'.format(prefix, i) for i in six.moves.range(n)]
+
+
 def mulexp(xs, init=None):
     if init is not None:
         return functools.reduce('{} * {}'.format, xs, init)
