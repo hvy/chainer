@@ -40,8 +40,8 @@ class Hstack(function_node.FunctionNode):
             return gy,
 
         if ndim == 0:
-            gx = chainer.functions.split_axis(gy, len(self.inputs), 0)
-            return [g.reshape(()) for g in gx]
+            gxs = chainer.functions.split_axis(gy, len(self.inputs), 0)
+            return [gx.reshape(()) for gx in gxs]
 
         axis = 0 if ndim == 1 else 1
         sizes = numpy.array([x.shape[axis] for x in self.inputs[:-1]]).cumsum()
