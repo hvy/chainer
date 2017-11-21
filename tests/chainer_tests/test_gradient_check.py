@@ -269,12 +269,12 @@ default_eps = 1e-3
     {'func': 'zero', 'x': [0.], 'result': False},
     {'func': 'zero', 'x': [default_eps / 10], 'result': False},
     {'func': 'zero', 'x': numpy.random.normal(size=(3, 2)), 'result': False},
-    {'func': 'zero', 'x': numpy.random.normal(size=()), 'result': False},
+    {'func': 'zero', 'x': numpy.random.normal(size=(1,)), 'result': False},
     {'func': 'linear', 'x': [-100.], 'result': False},
     {'func': 'linear', 'x': [100.], 'result': False},
     {'func': 'linear', 'x': [0.], 'result': False},
     {'func': 'linear', 'x': numpy.random.normal(size=(3, 2)), 'result': False},
-    {'func': 'linear', 'x': numpy.random.normal(size=()), 'result': False},
+    {'func': 'linear', 'x': numpy.random.normal(size=(1,)), 'result': False},
     # (Invalid input domain)
     {'func': 'linear', 'x': [numpy.inf], 'result': False,
      'ignore_warning': RuntimeWarning},
@@ -356,7 +356,7 @@ class NumericalGradientDetectNondifferentiableTest(unittest.TestCase):
         return x * x + 2.,
 
     def _func_cubic(self, x):
-        return -3 * x ** 3 + 2 * x ** 2 + 1
+        return -3 * x ** 3 + 2 * x ** 2 + 1,
 
     def _func_abs(self, x):
         return abs(x),
