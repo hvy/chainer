@@ -174,6 +174,17 @@ def numerical_grad(
                 # Stack flattenend outputs to make (5, *)-shaped 2D array
                 ystack = xp.vstack(
                     [ys[_].ravel() for ys in yss for _ in range(nout)])
+
+                print('Before vstack')
+                for tmp in [ys[_].ravel() for ys in yss for _ in range(nout)]:
+                    print(tmp.shape)
+
+                print('nout', nout)
+                print('ystack', ystack)
+                print('ystack.ndim', ystack.ndim)
+                print('ystack.shape', ystack.shape)
+                print('yss', len(yss), numpy.array(yss).shape, yss)
+
                 assert ystack.ndim == 2 and ystack.shape[0] == len(yss)
                 # Fit to quadratic
                 if gpu:
