@@ -326,7 +326,7 @@ def _make_backend_config(device_name):
     return backend_config
 
 
-def _create_test_entry_function(cls, module, devices):
+def _create_test_entry_function(cls, module, devices, reps):
     # Creates a test entry function from the template class, and places it in
     # the same module as the class.
 
@@ -346,34 +346,37 @@ def _create_test_entry_function(cls, module, devices):
         backend_config = _make_backend_config(device.name)
 
         # Forward test
-        obj = cls()
-        try:
-            obj.setup(*args, **kwargs)
-            obj.run_test_forward(backend_config)
-        finally:
-            obj.teardown()
+        for _ in range(reps):
+            obj = cls()
+            try:
+                obj.setup(*args, **kwargs)
+                obj.run_test_forward(backend_config)
+            finally:
+                obj.teardown()
 
-        # If this is a NumpyOpTest instance, skip backward/double-backward
-        # tests if the forward test succeeds with acceptable errors.
-        if isinstance(obj, NumpyOpTest):
-            if obj.is_forward_successful_with_accept_errors:
-                return  # success with expected errors
+            # If this is a NumpyOpTest instance, skip backward/double-backward
+            # tests if the forward test succeeds with acceptable errors.
+            if isinstance(obj, NumpyOpTest):
+                if obj.is_forward_successful_with_accept_errors:
+                    return  # success with expected errors
 
         # Backward test
-        obj = cls()
-        try:
-            obj.setup(*args, **kwargs)
-            obj.run_test_backward(backend_config)
-        finally:
-            obj.teardown()
+        for _ in range(reps):
+            obj = cls()
+            try:
+                obj.setup(*args, **kwargs)
+                obj.run_test_backward(backend_config)
+            finally:
+                obj.teardown()
 
         # Double-backward test
-        obj = cls()
-        try:
-            obj.setup(*args, **kwargs)
-            obj.run_test_double_backward(backend_config)
-        finally:
-            obj.teardown()
+        for _ in range(reps):
+            obj = cls()
+            try:
+                obj.setup(*args, **kwargs)
+                obj.run_test_double_backward(backend_config)
+            finally:
+                obj.teardown()
 
     entry_func.__name__ = func_name
 
@@ -397,7 +400,7 @@ def _create_test_entry_function(cls, module, devices):
     setattr(module, func_name, entry_func)
 
 
-def op_test(devices):
+def op_test(devices, reps=1):
     """Decorator to set up an op test.
 
     This decorator can be used in conjunction with either ``NumpyOpTest`` or
@@ -429,7 +432,7 @@ def op_test(devices):
                 raise TypeError(
                     '@op_test decorator can only be applied to OpTest class '
                     'definition.')
-            _create_test_entry_function(cls, sys.modules[mod], devices)
+            _create_test_entry_function(cls, sys.modules[mod], devices, reps)
 
         # return None: no other decorator can be applied after this decorator.
         return None
