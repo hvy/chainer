@@ -118,6 +118,12 @@ class TestCopyToError(unittest.TestCase):
         with self.assertRaises(TypeError):
             backend.copyto(dst, src)
 
+    def test_fail_on_mismatched_dtype(self):
+        src = numpy.zeros(1, dtype=numpy.float16)
+        dst = numpy.zeros(1, dtype=numpy.float32)
+        with self.assertRaises(ValueError):
+            backend.copyto(dst, src)
+
 
 class TestGetArrayModule(unittest.TestCase):
 

@@ -50,6 +50,18 @@ def copyto(dst, src):
             Source array.
 
     """
+    array_types = chainer.get_array_types()
+    if not isinstance(dst, array_types):
+        raise TypeError('cannot copy to non-array object of type {}'.format(
+            type(dst)))
+    if not isinstance(src, array_types):
+        raise TypeError('cannot copy from non-array object of type {}'.format(
+            type(src)))
+    if dst.dtype != src.dtype:
+        raise ValueError(
+            'cannot copy if dtypes do not match: {} and {}'.format(
+                dst.dtype, src.dtype))
+
     if isinstance(dst, chainerx.ndarray):
         dst[...] = _chainerx._array_to_chainerx(src, dst.device)
         return
@@ -72,11 +84,9 @@ def copyto(dst, src):
         elif isinstance(src, cuda.ndarray):
             cuda.cupy.copyto(dst, src)
         else:
-            raise TypeError('cannot copy from non-array object of type {}'
-                            .format(type(src)))
+            assert False
     else:
-        raise TypeError('cannot copy to non-array object of type {}'.format(
-            type(dst)))
+        assert False
 
 
 def _guess_device_from_array_module(xp):
